@@ -1,0 +1,143 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #c9f0a2;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.8rem;
+
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-family: Arial Black;
+    font-weight: bold;
+    font-size: 30px;
+    color: #041100;
+    text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;
+
+}
+
+.cont1 {
+
+    padding: 25px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+}
+
+.cont1 h2 {
+    margin-bottom: 20px;
+    color: #18470c;
+    text-align: center;
+}
+
+.entrada-datos {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.campo {
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.campo label {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #29740b;
+}
+
+.ent-dat {
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid #04420e;
+    background: rgba(255, 248, 220, 0.08);
+    color: #095806;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+
+.btn-primario {
+    margin-top: 28px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #61ff3a, #1e4e13, );
+    color: rgb(11, 65, 4);
+    font-weight: bold;
+    font-size: 1.05rem;
+    cursor: pointer;
+    align-self: flex-start;
+}
+
+.cont2 {
+    background: rgba(17, 80, 1, 0.89);
+    padding: 25px;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 179, 71, 0.15);
+}
+
+.titulo {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.header {
+    display: grid;
+    grid-template-columns: 5fr 2fr 1fr;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: hsl(93, 100%, 4%);
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 5fr 2fr 1fr;
+    align-items: center;
+    padding: 14px 15px;
+    background: rgba(15, 150, 2, 0.05);
+    margin-bottom: 8px;
+    border-radius: 10px;
+}
+
+
+.col {
+    padding: 0 8px;
+}
+
+.descripcion {
+    font-size: 1.05rem;
+}
+
+.check {
+    width: 22px;
+    height: 22px;
+    accent-color: #101f03;
+    cursor: pointer;
+}

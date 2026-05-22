@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check List - ToDo</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>CHECK LIST</h1>
+        <div class="cont1">
+            <h2>Nueva Tarea</h2>
+            <div class="entrada-datos">
+                <div class="campo">
+                    <label for="descripcion">Descripción:</label>
+                    <input type="text" class="ent-dat" id="descripcion" placeholder="Ej: Estudiar lenguaje">
+                </div>
+                <div class="campo">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" class="ent-dat" id="fecha">
+                </div>
+                <button class="btn-primario" onclick="agregarTarea()">Guardar Tarea</button>
+            </div>
+        </div>
+
+
+        <div class="cont2">
+            <h1 class="titulo">TODO LIST</h1>
+
+            <!-- Encabezados -->
+            <div class="header">
+                <div class="col">Descripción</div>
+                <div class="col">Fecha</div>
+                <div class="col">Estado</div>
+            </div>
+            <div id="lista"></div>
+        </div>
+    </div>
+    <script src="/js/script.js" defer></script>
+</body>
+
+</html>
