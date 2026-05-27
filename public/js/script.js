@@ -1,3 +1,13 @@
+async function obtenerMensajeError(response, mensajeGenerico) {
+    try {
+        const data = await response.json();
+        return data.mensaje || mensajeGenerico;
+    } catch {
+        return mensajeGenerico;
+    }
+}
+
+
 function abrirModal(id, descripcionActual, fechaActual) {
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('modal-desc').value = descripcionActual;
@@ -25,13 +35,17 @@ async function guardarEdicion(id) {
             body: JSON.stringify({ descripcion, fecha })
         });
 
-        if (!response.ok) throw new Error('No se pudo editar la tarea');
+        if (!response.ok) {
+            const mensaje = await obtenerMensajeError(response, 'No se pudo editar la tarea');
+            mostrarError(mensaje);
+            return;
+        }
 
         cerrarModal();
         cargarTareas();
 
     } catch (error) {
-        mostrarError(error.message);
+        mostrarError('Sin conexión con el servidor. Verifica tu red.');
     }
 }
 
@@ -45,7 +59,12 @@ function mostrarError(mensaje) {
 async function cargarTareas() {
     try {
         const response = await fetch('/api/tareas');
-        if (!response.ok) throw new Error('Error al cargar tareas');
+
+        if (!response.ok) {
+            const mensaje = await obtenerMensajeError(response, 'Error al cargar las tareas');
+            mostrarError(mensaje);
+            return;
+        }
 
         const tareas = await response.json();
         const lista  = document.getElementById('lista');
@@ -73,7 +92,7 @@ async function cargarTareas() {
                 <div class="botones">
                     <button
                         class="btn-editar"
-                        onclick="abrirModal(${tarea.id}, '${tarea.descripcion}', '${tarea.fecha}')"
+                        onclick="abrirModal(${tarea.id}, ''${tarea.descripcion}', '${tarea.fecha}')"
                     >
                         Editar
                     </button>
@@ -89,7 +108,7 @@ async function cargarTareas() {
         });
 
     } catch (error) {
-        mostrarError(error.message);
+        mostrarError('Sin conexión con el servidor. Verifica tu red.');
     }
 }
 
@@ -109,14 +128,18 @@ async function agregarTarea() {
             body: JSON.stringify({ descripcion, fecha })
         });
 
-        if (!response.ok) throw new Error('No se pudo guardar la tarea');
+        if (!response.ok) {
+            const mensaje = await obtenerMensajeError(response, 'No se pudo guardar la tarea');
+            mostrarError(mensaje);
+            return;
+        }
 
         document.getElementById('descripcion').value = '';
         document.getElementById('fecha').value = '';
         cargarTareas();
 
     } catch (error) {
-        mostrarError(error.message);
+        mostrarError('Sin conexión con el servidor. Verifica tu red.');
     }
 }
 
@@ -128,11 +151,16 @@ async function marcarCompletada(id, completada) {
             body: JSON.stringify({ completada })
         });
 
-        if (!response.ok) throw new Error('No se pudo actualizar');
+        if (!response.ok) {
+            const mensaje = await obtenerMensajeError(response, 'No se pudo actualizar el estado');
+            mostrarError(mensaje);
+            return;
+        }
+
         cargarTareas();
 
     } catch (error) {
-        mostrarError(error.message);
+        mostrarError('Sin conexión con el servidor. Verifica tu red.');
     }
 }
 
@@ -142,14 +170,18 @@ async function eliminarTarea(id) {
             method: 'DELETE'
         });
 
-        if (!response.ok) throw new Error('No se pudo eliminar la tarea');
+        if (!response.ok) {
+            const mensaje = await obtenerMensajeError(response, 'No se pudo eliminar la tarea');
+            mostrarError(mensaje);
+            return;
+        }
+
         cargarTareas();
 
     } catch (error) {
-        mostrarError(error.message);
+        mostrarError('Sin conexión con el servidor. Verifica tu red.');
     }
 }
-
 
 document.getElementById('descripcion').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') agregarTarea();
@@ -158,7 +190,7 @@ document.getElementById('descripcion').addEventListener('keypress', function(e) 
 document.getElementById('modal-cancelar').addEventListener('click', cerrarModal);
 
 document.getElementById('modal-overlay').addEventListener('click', function(e) {
-    if (e.target === this) cerrarModal(); // cierra al hacer clic fuera
+    if (e.target === this) cerrarModal();
 });
 
 cargarTareas();

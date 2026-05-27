@@ -8,53 +8,108 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let tareas = [];
 
+function validarCamposNuevaTarea(descripcion, fecha) {
+    if (!descripcion || !fecha) return 'Faltan campos: descripcion y fecha son requeridos';
+    if (typeof descripcion !== 'string') return 'El campo descripcion debe ser texto';
+    if (descripcion.trim().length === 0) return 'La descripcion no puede estar vacía';
+    if (descripcion.trim().length > 200) return 'La descripcion no puede superar 200 caracteres';
+    const fechaValida = !isNaN(Date.parse(fecha));
+    if (!fechaValida) return 'El campo fecha no tiene un formato válido (YYYY-MM-DD)';
+    return null;
+}
+
 app.get('/api/tareas', (req, res) => {
-    res.json(tareas);
+    try {
+        res.json(tareas);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error interno al obtener las tareas' });
+    }
 });
 
 app.post('/api/tareas', (req, res) => {
-    const { descripcion, fecha } = req.body;
+    try {
+        const { descripcion, fecha } = req.body;
+        const error = validarCamposNuevaTarea(descripcion, fecha);
+        if (error) return res.status(400).json({ mensaje: error });
 
-    if (!descripcion || !fecha) {
-        return res.status(400).json({ mensaje: 'Faltan datos' });
+        const nuevaTarea = {
+            id: Date.now(),
+            descripcion: descripcion.trim(),
+            fecha,
+            completada: false
+        };
+
+        tareas.push(nuevaTarea);
+        res.status(201).json(nuevaTarea);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error interno al crear la tarea' });
     }
-
-    const nuevaTarea = {
-        id: Date.now(),
-        descripcion,
-        fecha,
-        completada: false
-    };
-
-    tareas.push(nuevaTarea);
-    res.status(201).json(nuevaTarea);
 });
 
 app.put('/api/tareas/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const tarea = tareas.find(t => t.id === id);
+    try {
+        const id = Number(req.params.id);
 
-    if (!tarea) {
-        return res.status(404).json({ mensaje: 'Tarea no encontrada' });
+        if (isNaN(id)) return res.status(400).json({ mensaje: 'El ID debe ser un número válido' });
+
+        const tarea = tareas.find(t => t.id === id);
+        if (!tarea) return res.status(404).json({ mensaje: `No existe una tarea con ID ${id}` });
+
+        const { completada, descripcion, fecha } = req.body;
+
+        if (completada !== undefined) {
+            if (typeof completada !== 'boolean') {
+                return res.status(400).json({ mensaje: 'El campo completada debe ser true o false' });
+            }
+            tarea.completada = completada;
+        }
+
+        if (descripcion !== undefined) {
+            if (typeof descripcion !== 'string' || descripcion.trim().length === 0) {
+                return res.status(400).json({ mensaje: 'La descripcion no puede estar vacía' });
+            }
+            if (descripcion.trim().length > 200) {
+                return res.status(400).json({ mensaje: 'La descripcion no puede superar 200 caracteres' });
+            }
+            tarea.descripcion = descripcion.trim();
+        }
+
+        if (fecha !== undefined) {
+            if (isNaN(Date.parse(fecha))) {
+                return res.status(400).json({ mensaje: 'El campo fecha no tiene un formato válido (YYYY-MM-DD)' });
+            }
+            tarea.fecha = fecha;
+        }
+
+        res.json(tarea);
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error interno al actualizar la tarea' });
     }
-
-    if (req.body.completada !== undefined) tarea.completada = req.body.completada;
-    if (req.body.descripcion)             tarea.descripcion = req.body.descripcion;
-    if (req.body.fecha)                   tarea.fecha = req.body.fecha;
-
-    res.json(tarea);
 });
 
 app.delete('/api/tareas/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const existe = tareas.some(t => t.id === id);
+    try {
+        const id = Number(req.params.id);
 
-    if (!existe) {
-        return res.status(404).json({ mensaje: 'Tarea no encontrada' });
+        if (isNaN(id)) return res.status(400).json({ mensaje: 'El ID debe ser un número válido' });
+
+        const existe = tareas.some(t => t.id === id);
+        if (!existe) return res.status(404).json({ mensaje: `No existe una tarea con ID ${id}` });
+
+        tareas = tareas.filter(t => t.id !== id);
+        res.json({ mensaje: 'Tarea eliminada' });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error interno al eliminar la tarea' });
     }
+});
 
-    tareas = tareas.filter(t => t.id !== id);
-    res.json({ mensaje: 'Tarea eliminada' });
+app.use((req, res) => {
+    res.status(404).json({ mensaje: `Ruta no encontrada: ${req.method} ${req.path}` });
+});
+
+app.use((err, req, res, next) => {
+    console.error('Error no controlado:', err);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
 });
 
 app.listen(3000, () => {
