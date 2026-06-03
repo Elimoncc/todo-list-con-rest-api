@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
 require('dotenv').config();
 const express  = require('express');
 const session  = require('express-session');
@@ -8,7 +6,6 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const multer   = require('multer');
 const path     = require('path');
 const fs       = require('fs');
-require('dotenv').config();
 const app = express();
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
