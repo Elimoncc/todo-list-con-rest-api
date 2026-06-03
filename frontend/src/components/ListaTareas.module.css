@@ -1,0 +1,23 @@
+.cont2 {
+  background-color: #286808;
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.titulo {
+  text-align: center;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 4fr 2fr 1fr 2fr;
+  gap: 10px;
+  align-items: center;
+  background-color: #153802;
+  padding: 15px;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+}

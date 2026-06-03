@@ -1,0 +1,60 @@
+
+.header,
+.item {
+    display: grid;
+    grid-template-columns: 4fr 2fr 1fr 2fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.header {
+    background-color: #153802;
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+.item {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+    color: white;
+}
+
+.check {
+    width: 20px;
+    height: 20px;
+}
+
+.botones {
+    display: flex;
+    gap: 10px;
+}
+
+.btnEditar {
+    background-color: rgb(194, 128, 5);
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btnEliminar {
+    background-color: rgb(112, 4, 4);
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.descripcionCompletada {
+    text-decoration: line-through;
+    color: #ccc;
+}
+
+.descripcionPendiente {
+    text-decoration: none;
+    color: #fff;
+}

@@ -1,0 +1,43 @@
+.cont1 {
+  margin-bottom: 30px;
+}
+
+.cont1 h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #0a2900;
+}
+
+.entradaDatos {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.campo label {
+  margin-bottom: 8px;
+  color: #124900;
+}
+
+.entDat {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #1d6900;
+}
+
+.btnPrimario {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #2d8800;
+  color: white;
+  font-weight: bold;
+  margin-top: 24px;
+}

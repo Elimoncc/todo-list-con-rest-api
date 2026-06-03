@@ -1,0 +1,95 @@
+/* Overlay: fondo oscuro semitransparente que cubre toda la pantalla */
+.overlay {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Caja del modal */
+.box {
+  background: #1e1e2e;
+  padding: 32px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 320px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.box h3 {
+  color: #fff;
+  margin: 0;
+}
+
+.box label {
+  color: #ccc;
+}
+
+.box input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2a3e;
+  color: #fff;
+  font-size: 1rem;
+}
+
+/* Mensaje de error */
+.error {
+  background: #e53e3e;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Fila de botones */
+.botones {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btnCancelar {
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: none;
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btnCancelar:hover {
+  background: #555;
+}
+
+.btnGuardar {
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: none;
+  background: #6c63ff;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btnGuardar:hover {
+  background: #7c74ff;
+}
+
+/* Clases de descripción (por si se usan en otros módulos) */
+.descripcionCompletada {
+  text-decoration: line-through;
+  color: #ccc;
+}
+
+.descripcionPendiente {
+  text-decoration: none;
+  color: #fff;
+}

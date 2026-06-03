@@ -1,0 +1,12 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #c9f0a2;
+  min-height: 100vh;
+  padding: 20px;
+}

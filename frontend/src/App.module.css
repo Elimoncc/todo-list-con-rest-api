@@ -1,0 +1,110 @@
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.2rem;
+  color: #0a2900;
+}
+
+/* ── Login ── */
+.loginWrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f172a;
+}
+.card {
+  background: #1e293b;
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 340px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.card h1 { color: #f1f5f9; margin-bottom: 0.5rem; font-size: 1.5rem; }
+.sub { color: #64748b; margin-bottom: 2rem; font-size: 0.9rem; }
+.btnGoogle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: #fff;
+  color: #1e293b;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.btnGoogle:hover { background: #f1f5f9; }
+
+/* ── Top bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.titulo {
+  font-size: 2.5rem;
+  color: #0a2900;
+}
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #0a2900;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+.btnLogout {
+  padding: 6px 14px;
+  background: #e53e3e;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.tab, .tabActivo {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+.tab { background: #c9f0a2; color: #0a2900; }
+.tabActivo { background: #2d8800; color: white; }
+
+/* ── Error global ── */
+.errorGlobal {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #e53e3e;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}

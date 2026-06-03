@@ -29,7 +29,7 @@ async function guardarEdicion(id) {
     }
 
     try {
-        const response = await fetch(`/api/tareas/${id}`, {
+        const response = await fetch(`/api/tareas/${id}`, { //peticion al servidor
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ descripcion, fecha })
@@ -92,7 +92,7 @@ async function cargarTareas() {
                 <div class="botones">
                     <button
                         class="btn-editar"
-                        onclick="abrirModal(${tarea.id}, ''${tarea.descripcion}', '${tarea.fecha}')"
+                        onclick="abrirModal(${tarea.id}, '${tarea.descripcion}', '${tarea.fecha}')"
                     >
                         Editar
                     </button>
