@@ -9,7 +9,8 @@ function GestorArchivos() {
 
   const cargar = async () => {
     try {
-      const res = await fetch('/api/archivos')
+      const res = await fetch('/api/archivos', { credentials: 'include' })
+      if (!res.ok) { setError('Error al cargar archivos.'); return }
       setArchivos(await res.json())
       setError('')
     } catch {
@@ -23,7 +24,7 @@ function GestorArchivos() {
     const form = new FormData()
     for (const f of files) form.append('archivos', f)
     try {
-      await fetch('/api/archivos', { method: 'POST', body: form })
+      await fetch('/api/archivos', { method: 'POST', credentials: 'include', body: form })
       e.target.value = ''
       await cargar()
     } catch { setError('Error al subir archivos.') }
@@ -31,14 +32,14 @@ function GestorArchivos() {
 
   const eliminar = async (id) => {
     try {
-      await fetch(`/api/archivos/${id}`, { method: 'DELETE' })
+      await fetch(`/api/archivos/${id}`, { method: 'DELETE', credentials: 'include' })
       await cargar()
     } catch { setError('Error al eliminar el archivo.') }
   }
 
   const eliminarTodo = async () => {
     try {
-      await fetch('/api/archivos', { method: 'DELETE' })
+      await fetch('/api/archivos', { method: 'DELETE', credentials: 'include' })
       await cargar()
     } catch { setError('Error al eliminar los archivos.') }
   }
@@ -70,14 +71,14 @@ function GestorArchivos() {
         {archivos.length === 0
           ? <p className={styles.vacio}>No hay archivos guardados</p>
           : archivos.map(a => (
-            <div key={a.id} className={styles.archivo}>
+            <div key={a._id} className={styles.archivo}>
               <div className={styles.info}>
                 <p><strong>Nombre:</strong> {a.nombre}</p>
                 <p><strong>Tamaño:</strong> {formatTamaño(a.tamaño)}</p>
               </div>
               <div className={styles.botones}>
-                <button className={styles.btnDescargar} onClick={() => descargar(a.id)}>Descargar</button>
-                <button className={styles.btnEliminar}  onClick={() => eliminar(a.id)}>Eliminar</button>
+                <button className={styles.btnDescargar} onClick={() => descargar(a._id)}>Descargar</button>
+                <button className={styles.btnEliminar}  onClick={() => eliminar(a._id)}>Eliminar</button>
               </div>
             </div>
           ))

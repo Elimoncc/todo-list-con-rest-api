@@ -6,15 +6,24 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const multer   = require('multer');
 const path     = require('path');
 const fs       = require('fs');
+const mongoose = require('mongoose');
+const Tarea    = require('./models/Tarea');
+const Archivo  = require('./models/Archivo');
+
 const app = express();
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR);
 
+// ── Conexión MongoDB ──────────────────────────────────────
+mongoose.connect('mongodb://127.0.0.1:27017/todolist')
+  .then(() => console.log('Conectado a MongoDB'))
+  .catch(err => console.error('Error al conectar MongoDB:', err));
+
 // ── Passport ──────────────────────────────────────────────
 passport.use(new GoogleStrategy(
   {
-    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientID:process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL:  'http://localhost:3000/auth/google/callback'
   },
@@ -33,7 +42,7 @@ passport.deserializeUser((user, done) => done(null, user));
 
 // ── Middlewares ───────────────────────────────────────────
 app.use(express.json());
-app.use(session({ secret: 'clave-secreta', resave: false, saveUninitialized: false }));
+app.use(session({ secret: 'clave-secreta', resave: false, saveUninitialized: false, cookie: { sameSite: 'lax' }}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -55,7 +64,7 @@ app.get('/auth/google/callback',
   })
 );
 app.get('/auth/logout', (req, res) => {
-  req.logout(() => res.redirect('http://localhost:5173/'));
+  req.logout(() => res.redirect('/'));
 });
 app.get('/auth/me', (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json(null);
@@ -63,56 +72,74 @@ app.get('/auth/me', (req, res) => {
 });
 
 // ── Tareas ────────────────────────────────────────────────
-let tareas = [];
-
-function validarCamposNuevaTarea(descripcion, fecha) {
-  if (!descripcion || !fecha) return 'Faltan campos: descripcion y fecha son requeridos';
-  if (descripcion.trim().length === 0) return 'La descripcion no puede estar vacía';
-  if (descripcion.trim().length > 200) return 'La descripcion no puede superar 200 caracteres';
-  if (isNaN(Date.parse(fecha))) return 'El campo fecha no tiene un formato válido (YYYY-MM-DD)';
-  return null;
-}
-
-app.get('/api/tareas', requireAuth, (req, res) => {
-  res.json(tareas);
-});
-app.post('/api/tareas', requireAuth, (req, res) => {
-  const { descripcion, fecha } = req.body;
-  const error = validarCamposNuevaTarea(descripcion, fecha);
-  if (error) return res.status(400).json({ mensaje: error });
-  const nuevaTarea = { id: Date.now(), descripcion: descripcion.trim(), fecha, completada: false };
-  tareas.push(nuevaTarea);
-  res.status(201).json(nuevaTarea);
-});
-app.put('/api/tareas/:id', requireAuth, (req, res) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ mensaje: 'El ID debe ser un número válido' });
-  const tarea = tareas.find(t => t.id === id);
-  if (!tarea) return res.status(404).json({ mensaje: `No existe una tarea con ID ${id}` });
-  const { completada, descripcion, fecha } = req.body;
-  if (completada !== undefined) {
-    if (typeof completada !== 'boolean') return res.status(400).json({ mensaje: 'completada debe ser true o false' });
-    tarea.completada = completada;
+app.get('/api/tareas', requireAuth, async (req, res) => {
+  try {
+    const tareas = await Tarea.find()
+    res.json(tareas)
+  } catch {
+    res.status(500).json({ mensaje: 'Error al obtener las tareas' })
   }
-  if (descripcion !== undefined) {
-    if (typeof descripcion !== 'string' || descripcion.trim().length === 0)
-      return res.status(400).json({ mensaje: 'La descripcion no puede estar vacía' });
+});
+
+app.post('/api/tareas', requireAuth, async (req, res) => {
+  try {
+    const { descripcion, fecha } = req.body
+    if (!descripcion || !fecha)
+      return res.status(400).json({ mensaje: 'Faltan campos: descripcion y fecha son requeridos' })
+    if (descripcion.trim().length === 0)
+      return res.status(400).json({ mensaje: 'La descripcion no puede estar vacía' })
     if (descripcion.trim().length > 200)
-      return res.status(400).json({ mensaje: 'La descripcion no puede superar 200 caracteres' });
-    tarea.descripcion = descripcion.trim();
+      return res.status(400).json({ mensaje: 'La descripcion no puede superar 200 caracteres' })
+    if (isNaN(Date.parse(fecha)))
+      return res.status(400).json({ mensaje: 'El campo fecha no tiene un formato válido' })
+
+    const nueva = await Tarea.create({ descripcion: descripcion.trim(), fecha, completada: false })
+    res.status(201).json(nueva)
+  } catch {
+    res.status(500).json({ mensaje: 'Error al crear la tarea' })
   }
-  if (fecha !== undefined) {
-    if (isNaN(Date.parse(fecha))) return res.status(400).json({ mensaje: 'Fecha inválida' });
-    tarea.fecha = fecha;
-  }
-  res.json(tarea);
 });
-app.delete('/api/tareas/:id', requireAuth, (req, res) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ mensaje: 'El ID debe ser un número válido' });
-  if (!tareas.some(t => t.id === id)) return res.status(404).json({ mensaje: `No existe una tarea con ID ${id}` });
-  tareas = tareas.filter(t => t.id !== id);
-  res.json({ mensaje: 'Tarea eliminada' });
+
+app.put('/api/tareas/:id', requireAuth, async (req, res) => {
+  try {
+    const tarea = await Tarea.findById(req.params.id)
+    if (!tarea) return res.status(404).json({ mensaje: 'No existe esa tarea' })
+
+    const { completada, descripcion, fecha } = req.body
+
+    if (completada !== undefined) {
+      if (typeof completada !== 'boolean')
+        return res.status(400).json({ mensaje: 'completada debe ser true o false' })
+      tarea.completada = completada
+    }
+    if (descripcion !== undefined) {
+      if (descripcion.trim().length === 0)
+        return res.status(400).json({ mensaje: 'La descripcion no puede estar vacía' })
+      if (descripcion.trim().length > 200)
+        return res.status(400).json({ mensaje: 'La descripcion no puede superar 200 caracteres' })
+      tarea.descripcion = descripcion.trim()
+    }
+    if (fecha !== undefined) {
+      if (isNaN(Date.parse(fecha)))
+        return res.status(400).json({ mensaje: 'Fecha inválida' })
+      tarea.fecha = fecha
+    }
+
+    await tarea.save()
+    res.json(tarea)
+  } catch {
+    res.status(500).json({ mensaje: 'Error al actualizar la tarea' })
+  }
+});
+
+app.delete('/api/tareas/:id', requireAuth, async (req, res) => {
+  try {
+    const tarea = await Tarea.findByIdAndDelete(req.params.id)
+    if (!tarea) return res.status(404).json({ mensaje: 'No existe esa tarea' })
+    res.json({ mensaje: 'Tarea eliminada' })
+  } catch {
+    res.status(500).json({ mensaje: 'Error al eliminar la tarea' })
+  }
 });
 
 // ── Archivos ──────────────────────────────────────────────
@@ -125,35 +152,66 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-app.get('/api/archivos', requireAuth, (req, res) => {
-  const archivos = fs.readdirSync(UPLOADS_DIR).map(filename => ({
-    id:     filename,
-    nombre: filename.replace(/^\d+-/, ''),
-    tamaño: fs.statSync(path.join(UPLOADS_DIR, filename)).size
-  }));
-  res.json(archivos);
+app.get('/api/archivos', requireAuth, async (req, res) => {
+  try {
+    const archivos = await Archivo.find()
+    res.json(archivos)
+  } catch {
+    res.status(500).json({ mensaje: 'Error al obtener archivos' })
+  }
 });
-app.post('/api/archivos', requireAuth, upload.array('archivos'), (req, res) => {
-  res.json(req.files.map(f => ({
-    id:     f.filename,
-    nombre: f.filename.replace(/^\d+-/, ''),
-    tamaño: f.size
-  })));
+
+app.post('/api/archivos', requireAuth, upload.array('archivos'), async (req, res) => {
+  try {
+    const guardados = await Promise.all(req.files.map(f =>
+      Archivo.create({
+        filename: f.filename,
+        nombre:   f.filename.replace(/^\d+-/, ''),
+        tamaño:   f.size
+      })
+    ))
+    res.json(guardados)
+  } catch {
+    res.status(500).json({ mensaje: 'Error al guardar archivos' })
+  }
 });
-app.get('/api/archivos/:id', requireAuth, (req, res) => {
-  const filepath = path.join(UPLOADS_DIR, req.params.id);
-  if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'Archivo no encontrado' });
-  res.download(filepath, req.params.id.replace(/^\d+-/, ''));
+
+app.get('/api/archivos/:id', requireAuth, async (req, res) => {
+  try {
+    const archivo = await Archivo.findById(req.params.id)
+    if (!archivo) return res.status(404).json({ error: 'Archivo no encontrado' })
+    const filepath = path.join(UPLOADS_DIR, archivo.filename)
+    if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'Archivo no encontrado en disco' })
+    res.download(filepath, archivo.nombre)
+  } catch {
+    res.status(500).json({ mensaje: 'Error al descargar' })
+  }
 });
-app.delete('/api/archivos/:id', requireAuth, (req, res) => {
-  const filepath = path.join(UPLOADS_DIR, req.params.id);
-  if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'Archivo no encontrado' });
-  fs.unlinkSync(filepath);
-  res.json({ ok: true });
+
+app.delete('/api/archivos/:id', requireAuth, async (req, res) => {
+  try {
+    const archivo = await Archivo.findByIdAndDelete(req.params.id)
+    if (!archivo) return res.status(404).json({ error: 'Archivo no encontrado' })
+    const filepath = path.join(UPLOADS_DIR, archivo.filename)
+    if (fs.existsSync(filepath)) fs.unlinkSync(filepath)
+    res.json({ ok: true })
+  } catch {
+    res.status(500).json({ mensaje: 'Error al eliminar' })
+  }
 });
-app.delete('/api/archivos', requireAuth, (req, res) => {
-  fs.readdirSync(UPLOADS_DIR).forEach(f => fs.unlinkSync(path.join(UPLOADS_DIR, f)));
-  res.json({ ok: true });
+
+app.delete('/api/archivos', requireAuth, async (req, res) => {
+  try {
+    const archivos = await Archivo.find()
+    archivos.forEach(a => {
+      const filepath = path.join(UPLOADS_DIR, a.filename)
+      if (fs.existsSync(filepath)) fs.unlinkSync(filepath)
+    })
+    await Archivo.deleteMany()
+    res.json({ ok: true })
+  } catch {
+    res.status(500).json({ mensaje: 'Error al eliminar todo' })
+  }
 });
 
 // ── Error handler ─────────────────────────────────────────

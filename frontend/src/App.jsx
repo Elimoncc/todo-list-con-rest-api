@@ -45,7 +45,7 @@ function App() {
     catch (e) { setErrorGlobal(e.mensaje || 'Error al agregar la tarea') }
   }
   const handleGuardarEdicion = async (cambios) => {
-    try { setErrorGlobal(''); await actualizarTarea(tareaEditando.id, cambios); setTareaEditando(null) }
+    try { setErrorGlobal(''); await actualizarTarea(tareaEditando._id, cambios); setTareaEditando(null) }
     catch (e) { setErrorGlobal(e.mensaje || 'Error al actualizar la tarea') }
   }
   const handleEliminar = async (id) => {
@@ -53,7 +53,7 @@ function App() {
     catch (e) { setErrorGlobal(e.mensaje || 'Error al eliminar la tarea') }
   }
   const handleToggle = async (tarea) => {
-    try { await actualizarTarea(tarea.id, { completada: !tarea.completada }) }
+    try { await actualizarTarea(tarea._id, { completada: !tarea.completada }) }
     catch (e) { setErrorGlobal(e.mensaje || 'Error al actualizar') }
   }
 

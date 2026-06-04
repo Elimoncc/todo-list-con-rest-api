@@ -13,7 +13,7 @@ function ListaTareas({ tareas, onEditar, onEliminar, onToggleCompletada }) {
       </div>
       {tareas.map(tarea => (
         <ItemTarea
-          key={tarea.id}
+          key={tarea._id}
           tarea={tarea}
           onEditar={onEditar}
           onEliminar={onEliminar}

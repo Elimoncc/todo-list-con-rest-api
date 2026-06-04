@@ -14,8 +14,8 @@ function ItemTarea({ tarea, onEditar, onEliminar, onToggleCompletada }) {
         onChange={() => onToggleCompletada(tarea)}
       />
       <div className={styles.botones}>
-        <button className={styles.btnEditar} onClick={() => onEditar(tarea)}>Editar</button>
-        <button className={styles.btnEliminar} onClick={() => onEliminar(tarea.id)}>Eliminar</button>
+        <button className={styles.btnEditar}   onClick={() => onEditar(tarea)}>Editar</button>
+        <button className={styles.btnEliminar} onClick={() => onEliminar(tarea._id)}>Eliminar</button>
       </div>
     </div>
   )

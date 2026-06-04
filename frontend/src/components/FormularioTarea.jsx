@@ -3,21 +3,27 @@ import styles from './FormularioTarea.module.css'
 
 function FormularioTarea({ onAgregar }) {
   const [descripcion, setDescripcion] = useState('')
-  const [fecha, setFecha] = useState('')
+  const [fecha, setFecha]             = useState('')
+  const [error, setError]             = useState('')
 
   const handleGuardar = async () => {
+    if (!descripcion.trim()) return setError('La descripción no puede estar vacía')
+    if (descripcion.trim().length > 200) return setError('Máximo 200 caracteres')
+    if (!fecha) return setError('La fecha es requerida')
+    setError('')
     try {
-      await onAgregar(descripcion, fecha)
+      await onAgregar(descripcion.trim(), fecha)
       setDescripcion('')
       setFecha('')
     } catch (e) {
-      // el error lo maneja App.jsx
+      setError(e.mensaje || 'Error al agregar la tarea')
     }
   }
 
   return (
     <div className={styles.cont1}>
       <h2>Nueva Tarea</h2>
+      {error && <p style={{ color: '#e53e3e', marginBottom: '10px', fontWeight: 'bold' }}>{error}</p>}
       <div className={styles.entradaDatos}>
         <div className={styles.campo}>
           <label>Descripción</label>
@@ -27,6 +33,7 @@ function FormularioTarea({ onAgregar }) {
             placeholder="Ej: Estudiar React"
             value={descripcion}
             onChange={e => setDescripcion(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleGuardar()}
           />
         </div>
         <div className={styles.campo}>

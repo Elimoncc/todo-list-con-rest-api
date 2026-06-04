@@ -5,17 +5,21 @@ export function useTareas(habilitado) {
 
   useEffect(() => {
     if (!habilitado) return
-    fetch('/api/tareas')
+    fetch('/api/tareas', { credentials: 'include' })
       .then(r => r.json())
-      .then(setTareas)
-      .catch(() => {})
+      .then(data => {
+        if (Array.isArray(data)) setTareas(data)
+        else setTareas([])
+      })
+      .catch(() => setTareas([]))
   }, [habilitado])
 
   const agregarTarea = async (descripcion, fecha) => {
     const res = await fetch('/api/tareas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ descripcion, fecha })
+      method:      'POST',
+      credentials: 'include',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify({ descripcion, fecha })
     })
     const data = await res.json()
     if (!res.ok) throw data
@@ -23,21 +27,25 @@ export function useTareas(habilitado) {
   }
 
   const eliminarTarea = async (id) => {
-    const res = await fetch(`/api/tareas/${id}`, { method: 'DELETE' })
+    const res = await fetch(`/api/tareas/${id}`, {
+      method:      'DELETE',
+      credentials: 'include'
+    })
     const data = await res.json()
     if (!res.ok) throw data
-    setTareas(prev => prev.filter(t => t.id !== id))
+    setTareas(prev => prev.filter(t => t._id !== id))
   }
 
   const actualizarTarea = async (id, cambios) => {
     const res = await fetch(`/api/tareas/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cambios)
+      method:      'PUT',
+      credentials: 'include',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify(cambios)
     })
     const data = await res.json()
     if (!res.ok) throw data
-    setTareas(prev => prev.map(t => t.id === id ? data : t))
+    setTareas(prev => prev.map(t => t._id === id ? data : t))
   }
 
   return { tareas, agregarTarea, eliminarTarea, actualizarTarea }
