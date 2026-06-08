@@ -1,5 +1,20 @@
 # TodoList REST API
 
+## Aplicación desplegada
+
+La aplicación se encuentra desplegada en la nube mediante Render y puede accederse desde el siguiente enlace:
+
+**Frontend (Aplicación Web):**
+https://todolist-frontend-oiu7.onrender.com/
+
+**Backend (API REST):**
+https://todolist-backend-aucg.onrender.com/
+
+### Credenciales
+
+La autenticación se realiza mediante Google OAuth 2.0, por lo que no existen usuarios o contraseñas predefinidas. Cada usuario puede iniciar sesión utilizando su propia cuenta de Google.
+
+### Mas informacion
 Aplicación web para la gestión de tareas y archivos con autenticación mediante Google OAuth 2.0.
 
 El sistema permite a cada usuario:
