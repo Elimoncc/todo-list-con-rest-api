@@ -1,170 +1,516 @@
-# TodoList REST API 
-Aplicación web de lista de tareas con autenticación mediante Google OAuth. 
-El proyecto está dividido en dos partes: un **backend** con Node.js/Express que expone una REST API, y un **frontend** 
-con React + Vite. Usa MongoDB como base de datos y admite subida de archivos adjuntos por tarea.
+# TodoList REST API
+
+Aplicación web para la gestión de tareas y archivos con autenticación mediante Google OAuth 2.0.
+
+El sistema permite a cada usuario:
+
+* Iniciar sesión con Google.
+* Crear tareas.
+* Editar tareas.
+* Marcar tareas como completadas.
+* Eliminar tareas.
+* Subir archivos.
+* Descargar archivos.
+* Eliminar archivos.
+* Gestionar información privada asociada únicamente a su cuenta.
+
+La aplicación está compuesta por:
+
+* **Backend:** Node.js + Express.
+* **Frontend:** React + Vite.
+* **Base de datos:** MongoDB Atlas.
+* **Autenticación:** Google OAuth 2.0.
+* **Despliegue:** Render.
+
 ---
-## Tecnologías utilizadas
-- **Backend:** Node.js, Express, Mongoose, Passport.js (Google OAuth 2.0), Multer, dotenv
-- **Frontend:** React 19, Vite
-- **Base de datos:** MongoDB
-- **Autenticación:** Google OAuth 2.0 (via HTTPS local)
+
+# URL de producción
+
+Frontend:
+
+https://todolist-frontend-oiu7.onrender.com
+
+Backend:
+
+https://todolist-backend-aucg.onrender.com
+
 ---
+
+# Tecnologías utilizadas
+
+## Backend
+
+* Node.js
+* Express
+* MongoDB
+* Mongoose
+* Passport.js
+* Google OAuth 2.0
+* Express Session
+* Multer
+* dotenv
+* CORS
+
+## Frontend
+
+* React
+* Vite
+* CSS Modules
+
+## Infraestructura
+
+* MongoDB Atlas
+* Render
+* GitHub
+
+---
+
+# Funcionalidades implementadas
+
+## Gestión de usuarios
+
+* Inicio de sesión con Google.
+* Cierre de sesión.
+* Persistencia de sesión.
+
+## Gestión de tareas
+
+* Crear tarea.
+* Editar tarea.
+* Eliminar tarea.
+* Marcar tarea como completada.
+* Listar tareas del usuario autenticado.
+
+## Gestión de archivos
+
+* Subir archivos.
+* Descargar archivos.
+* Eliminar archivos individuales.
+* Eliminar todos los archivos.
+* Aislamiento de archivos por usuario.
+
+## Seguridad
+
+* Autenticación mediante OAuth 2.0.
+* Protección de rutas privadas.
+* Separación de información por usuario.
+* Variables sensibles mediante archivo .env.
+
+---
+
+# Arquitectura del proyecto
+
+```text
+TodoList-RestAPI
+│
+├── app.js
+├── package.json
+├── .env
+├── models
+│   ├── Tarea.js
+│   └── Archivo.js
+│
+├── uploads
+│
+└── frontend
+    │
+    ├── package.json
+    ├── vite.config.js
+    │
+    └── src
+        ├── App.jsx
+        ├── hooks
+        │   └── useTareas.js
+        │
+        └── components
+            ├── FormularioTarea.jsx
+            ├── ListaTareas.jsx
+            ├── ModalEditar.jsx
+            └── GestorArchivos.jsx
+```
+
+---
+
+# Instalación y ejecución local
+
 ## Requisitos previos
-Antes de comenzar, asegúrate de tener instalado lo siguiente:
-- [Node.js](https://nodejs.org/) v18 o superior
-- [MongoDB](https://www.mongodb.com/try/download/community) corriendo localmente (o usar Docker)
-- Una cuenta de Google para configurar las credenciales OAuth
-> **Nota:** El backend usa HTTPS con certificados locales, por lo que también necesitarás generar
-> un certificado autofirmado (ver paso 2).
+
+Instalar:
+
+* Node.js 18 o superior
+* MongoDB Community Edition
+* Git
+
+Verificar instalación:
+
+```bash
+node -v
+npm -v
+mongod --version
+```
+
 ---
-## Instalación y configuración local
 
-### Paso 1 — Clonar o descomprimir el proyecto
-
-Si descargaste el `.zip`, descomprímelo en una carpeta de tu preferencia y navega a la raíz del proyecto:
-```bash
-cd TodoList-RestAPI
-```
-### Paso 2 — Generar certificados HTTPS locales
-
-El backend corre en HTTPS. Para generarlos sin instalar nada adicional puedes usar `openssl`:
+## 1. Clonar el repositorio
 
 ```bash
-mkdir certs
-openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
+git clone https://github.com/Elimoncc/todo-list-con-rest-api.git
+
+cd todo-list-con-rest-api
 ```
 
-Esto crea los archivos `certs/key.pem` y `certs/cert.pem` que el servidor necesita.
+---
 
-### Paso 3 — Configurar las variables de entorno
-
-En la raíz del proyecto ya existe un archivo `.env`. Edítalo y reemplaza los valores con tus propias credenciales de Google:
-
-```env
-GOOGLE_CLIENT_ID=*********
-GOOGLE_CLIENT_SECRET=*********
-SESSION_SECRET=********
-MONGO_URI=mongodb:*******
-PORT=3000
-NODE_ENV=development
-```
-
-> Para obtener `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` debes crear un proyecto en [Google Cloud Console](https://console.cloud.google.com/), habilitar la API de Google OAuth y configurar `https://localhost:3000/auth/google/callback` como URI de redireccionamiento autorizado.
-
-### Paso 4 — Instalar dependencias del backend
+## 2. Instalar dependencias del backend
 
 ```bash
 npm install
 ```
 
-### Paso 5 — Instalar dependencias del frontend
+---
+
+## 3. Instalar dependencias del frontend
 
 ```bash
 cd frontend
+
 npm install
+
 cd ..
 ```
 
 ---
 
-## Ejecutar la aplicación
+## 4. Crear archivo .env
 
-La app necesita tres cosas corriendo al mismo tiempo: MongoDB, el backend y el frontend. Abre **tres terminales** distintas.
+Crear un archivo llamado:
 
-### Terminal 1 — Iniciar MongoDB
+```text
+.env
+```
 
-Si tienes MongoDB instalado localmente:
+Contenido:
+
+```env
+PORT=3000
+
+MONGO_URI=mongodb://127.0.0.1:27017/todolist
+
+GOOGLE_CLIENT_ID=TU_CLIENT_ID
+
+GOOGLE_CLIENT_SECRET=TU_CLIENT_SECRET
+
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+
+SESSION_SECRET=clave_super_secreta
+
+FRONTEND_URL=http://localhost:5173
+
+NODE_ENV=development
+```
+
+---
+
+## 5. Configurar Google OAuth
+
+Entrar a:
+
+https://console.cloud.google.com
+
+Crear un proyecto.
+
+Habilitar:
+
+```text
+Google Identity Services
+```
+
+Crear credenciales OAuth 2.0.
+
+Agregar:
+
+### Authorized JavaScript Origins
+
+```text
+http://localhost:5173
+```
+
+### Authorized Redirect URIs
+
+```text
+http://localhost:3000/auth/google/callback
+```
+
+Guardar.
+
+Copiar:
+
+```text
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+```
+
+al archivo .env.
+
+---
+
+## 6. Iniciar MongoDB
 
 ```bash
 mongod
 ```
 
-> Si usas una instalación estándar en Windows, MongoDB puede estar corriendo como servicio automáticamente. En ese caso puedes omitir este paso.
+---
 
-### Terminal 2 — Iniciar el backend
-
-Desde la raíz del proyecto:
+## 7. Iniciar backend
 
 ```bash
 npm start
 ```
 
-Si todo va bien deberías ver algo así:
-Conectado a MongoDB
-Servidor corriendo en https://localhost:3000
+Resultado esperado:
 
-### Terminal 3 — Iniciar el frontend
+```text
+Conectado a MongoDB
+Servidor en puerto 3000
+```
+
+---
+
+## 8. Iniciar frontend
+
+Nueva terminal:
 
 ```bash
 cd frontend
+
 npm run dev
 ```
 
-El frontend estará disponible en:
-https://localhost:5173
+Resultado esperado:
+
+```text
+Local:
+http://localhost:5173
+```
 
 ---
 
-## Acceder a la aplicación
+## 9. Acceder a la aplicación
 
-1. Abre el navegador y navega a `https://localhost:5173`
-2. Como el certificado es autofirmado, el navegador mostrará una advertencia de seguridad — haz clic en **"Avanzado"** y luego en **"Continuar a localhost"** (en Chrome) o el equivalente según tu navegador
-3. Haz lo mismo para `https://localhost:3000` (el backend), ya que las cookies de sesión también necesitan que confíes en ese origen
-4. Inicia sesión con tu cuenta de Google
+Abrir:
 
----
+```text
+http://localhost:5173
+```
 
-## Estructura del proyecto
-TodoList-RestAPI/
-├── app.js               # Servidor principal (Express + Passport + rutas API)
-├── package.json
-├── .env                 # Variables de entorno (no subir a Git)
-├── certs/               # Certificados HTTPS (generados por ti)
-├── uploads/             # Archivos subidos por los usuarios
-├── models/              # Modelos de Mongoose (Tarea, Archivo)
-└── frontend/            # Aplicación React
-├── src/
-│   ├── App.jsx
-│   ├── components/  # Componentes React
-│   └── hooks/       # Custom hooks
-├── vite.config.js
-└── package.json
+Iniciar sesión con Google.
 
 ---
 
-## Endpoints principales de la API
+# Ejecución mediante Docker
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/auth/google` | Redirige al login de Google |
-| GET | `/auth/google/callback` | Callback de Google OAuth |
-| GET | `/auth/logout` | Cierra la sesión |
-| GET | `/auth/me` | Devuelve el usuario autenticado |
-| GET | `/api/tareas` | Lista todas las tareas |
-| POST | `/api/tareas` | Crea una nueva tarea |
-| PUT | `/api/tareas/:id` | Actualiza una tarea |
-| DELETE | `/api/tareas/:id` | Elimina una tarea |
+## Requisitos
 
-> Todos los endpoints de `/api/` requieren estar autenticado.
+Instalar Docker Desktop.
 
----
-
-## Opción alternativa: Docker
-
-Si prefieres no instalar MongoDB ni configurar todo manualmente, puedes usar Docker Compose. Necesitas tener instalado [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+Verificar:
 
 ```bash
-docker compose up --build
+docker --version
+docker compose version
 ```
-Esto levanta automáticamente MongoDB, el backend y el frontend en contenedores.
+
 ---
-## Posibles errores comunes
 
-**El navegador no carga la app (ERR_CERT_INVALID)**
-→ Debes aceptar manualmente el certificado autofirmado en `https://localhost:3000` y también en `https://localhost:5173`.
+## Construir contenedores
 
-**"Error MongoDB"**
-→ Verifica que MongoDB esté corriendo. En Linux/Mac: `sudo systemctl start mongod`.
+```bash
+docker compose build
+```
 
-**"No autenticado" en todas las rutas**
-→ Asegúrate de haber configurado bien las credenciales de Google en el `.env` y que la URI de callback en Google Cloud coincida exactamente con `https://localhost:3000/auth/google/callback`.
+---
+
+## Iniciar servicios
+
+```bash
+docker compose up
+```
+
+---
+
+## Iniciar en segundo plano
+
+```bash
+docker compose up -d
+```
+
+---
+
+## Detener servicios
+
+```bash
+docker compose down
+```
+
+---
+
+# Despliegue en la nube (Render + MongoDB Atlas)
+
+## 1. Crear base de datos MongoDB Atlas
+
+* Crear cuenta en MongoDB Atlas.
+* Crear Cluster.
+* Crear usuario de base de datos.
+* Configurar acceso de red.
+* Obtener cadena de conexión.
+
+Ejemplo:
+
+```text
+mongodb+srv://usuario:password@cluster.mongodb.net/todolist
+```
+
+---
+
+## 2. Crear repositorio GitHub
+
+Subir proyecto:
+
+```bash
+git init
+
+git add .
+
+git commit -m "Primer commit"
+
+git remote add origin URL_REPOSITORIO
+
+git push -u origin main
+```
+
+---
+
+## 3. Desplegar Backend en Render
+
+Crear:
+
+```text
+Web Service
+```
+
+Configurar:
+
+```text
+Root Directory: /
+Build Command: npm install
+Start Command: npm start
+```
+
+Variables de entorno:
+
+```env
+MONGO_URI=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=
+SESSION_SECRET=
+FRONTEND_URL=
+NODE_ENV=production
+```
+
+---
+
+## 4. Desplegar Frontend en Render
+
+Crear:
+
+```text
+Static Site
+```
+
+Configurar:
+
+```text
+Root Directory: frontend
+
+Build Command:
+npm install && npm run build
+
+Publish Directory:
+dist
+```
+
+Variable:
+
+```env
+VITE_API_URL=https://URL_DEL_BACKEND
+```
+
+---
+
+## 5. Configurar OAuth para producción
+
+Authorized JavaScript Origins:
+
+```text
+https://URL_DEL_FRONTEND
+```
+
+Authorized Redirect URIs:
+
+```text
+https://URL_DEL_BACKEND/auth/google/callback
+```
+
+---
+
+# Endpoints principales
+
+## Autenticación
+
+| Método | Ruta                  |
+| ------ | --------------------- |
+| GET    | /auth/google          |
+| GET    | /auth/google/callback |
+| GET    | /auth/me              |
+| GET    | /auth/logout          |
+
+---
+
+## Tareas
+
+| Método | Ruta            |
+| ------ | --------------- |
+| GET    | /api/tareas     |
+| POST   | /api/tareas     |
+| PUT    | /api/tareas/:id |
+| DELETE | /api/tareas/:id |
+
+---
+
+## Archivos
+
+| Método | Ruta              |
+| ------ | ----------------- |
+| GET    | /api/archivos     |
+| POST   | /api/archivos     |
+| GET    | /api/archivos/:id |
+| DELETE | /api/archivos/:id |
+| DELETE | /api/archivos     |
+
+---
+
+# Consideraciones de seguridad
+
+* Las tareas están asociadas al usuario autenticado.
+* Los archivos están asociados al usuario autenticado.
+* Un usuario no puede acceder a la información de otro usuario.
+* Las credenciales nunca deben subirse al repositorio.
+* El archivo .env debe permanecer en .gitignore.
+
+---
+
+# Autor
+
+Proyecto desarrollado como práctica de desarrollo web utilizando React, Node.js, Express, MongoDB Atlas, Google OAuth y Render.
