@@ -1,0 +1,49 @@
+services:
+
+  mongo:
+    image: mongo:6
+    container_name: todolist-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27018:27017"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: todolist-backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: mongodb://mongo:27017/todolist
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
+      PORT: 3000
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - uploads_data:/app/uploads
+      - ./certs:/app/certs:ro
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+    container_name: todolist-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./certs:/app/certs:ro
+      - ./frontend/vite.config.js:/app/vite.config.js:ro
+
+volumes:
+  mongo_data:
+  uploads_data:

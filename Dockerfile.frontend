@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar dependencias del frontend
+COPY package.json ./
+RUN npm install
+
+# Copiar el resto del código fuente
+COPY . .
+
+EXPOSE 5173
+
+# Vite en modo dev escuchando en todas las interfaces
+CMD ["npx", "vite", "--host", "0.0.0.0"]
