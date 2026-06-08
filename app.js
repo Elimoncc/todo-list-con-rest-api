@@ -1,6 +1,6 @@
 require('dotenv').config()
+const cors = require('cors')
 const fs = require('fs')
-const https = require('https')
 const path = require('path')
 const express = require('express')
 const session = require('express-session')
@@ -12,6 +12,7 @@ const Tarea = require('./models/Tarea')
 const Archivo = require('./models/Archivo')
 
 const app = express()
+app.set('trust proxy', 1)
 const PORT = process.env.PORT || 3000
 const UPLOADS_DIR = path.join(__dirname, 'uploads')
 
@@ -24,7 +25,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/todolist')
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `https://localhost:${PORT}/auth/google/callback`
+  callbackURL: process.env.GOOGLE_CALLBACK_URL
 }, (accessToken, refreshToken, profile, done) => {
   return done(null, {
     id: profile.id,
@@ -37,11 +38,18 @@ passport.serializeUser((user, done) => done(null, user))
 passport.deserializeUser((user, done) => done(null, user))
 
 app.use(express.json())
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}))
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-inseguro',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: true, sameSite: 'lax' }
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none'
+  }
 }))
 app.use(passport.initialize())
 app.use(passport.session())
@@ -57,12 +65,16 @@ app.get('/auth/google',
 )
 app.get('/auth/google/callback',
   passport.authenticate('google', {
-    successRedirect: 'https://localhost:5173/',
-    failureRedirect: 'https://localhost:5173/'
+    successRedirect: process.env.FRONTEND_URL,
+    failureRedirect: process.env.FRONTEND_URL
   })
 )
 app.get('/auth/logout', (req, res) => {
-  req.logout(() => res.redirect('https://localhost:5173/'))
+  req.logout(() => {
+    req.session.destroy(() => {
+      res.redirect(process.env.FRONTEND_URL)
+    })
+  })
 })
 app.get('/auth/me', (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json(null)
@@ -225,12 +237,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ mensaje: 'Error interno del servidor' })
 })
 
-const certPath = path.join(__dirname, 'certs')
-const sslOptions = {
-  key: fs.readFileSync(path.join(certPath, 'key.pem')),
-  cert: fs.readFileSync(path.join(certPath, 'cert.pem'))
-}
-
-https.createServer(sslOptions, app).listen(PORT, () => {
-  console.log(`🔒 Servidor HTTPS en https://localhost:${PORT}`)
+app.listen(PORT, () => {
+  console.log(`Servidor en puerto ${PORT}`)
 })
