@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 export function useTareas(habilitado) {
   const [tareas, setTareas] = useState([])
 
   useEffect(() => {
     if (!habilitado) return
-    fetch('/api/tareas', { credentials: 'include' })
+
+    fetch(`${API_URL}/api/tareas`, {
+      credentials: 'include'
+    })
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) setTareas(data)
@@ -15,38 +20,61 @@ export function useTareas(habilitado) {
   }, [habilitado])
 
   const agregarTarea = async (descripcion, fecha) => {
-    const res = await fetch('/api/tareas', {
-      method:      'POST',
+    const res = await fetch(`${API_URL}/api/tareas`, {
+      method: 'POST',
       credentials: 'include',
-      headers:     { 'Content-Type': 'application/json' },
-      body:        JSON.stringify({ descripcion, fecha })
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        descripcion,
+        fecha
+      })
     })
+
     const data = await res.json()
+
     if (!res.ok) throw data
+
     setTareas(prev => [...prev, data])
   }
 
   const eliminarTarea = async (id) => {
-    const res = await fetch(`/api/tareas/${id}`, {
-      method:      'DELETE',
+    const res = await fetch(`${API_URL}/api/tareas/${id}`, {
+      method: 'DELETE',
       credentials: 'include'
     })
+
     const data = await res.json()
+
     if (!res.ok) throw data
+
     setTareas(prev => prev.filter(t => t._id !== id))
   }
 
   const actualizarTarea = async (id, cambios) => {
-    const res = await fetch(`/api/tareas/${id}`, {
-      method:      'PUT',
+    const res = await fetch(`${API_URL}/api/tareas/${id}`, {
+      method: 'PUT',
       credentials: 'include',
-      headers:     { 'Content-Type': 'application/json' },
-      body:        JSON.stringify(cambios)
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(cambios)
     })
+
     const data = await res.json()
+
     if (!res.ok) throw data
-    setTareas(prev => prev.map(t => t._id === id ? data : t))
+
+    setTareas(prev =>
+      prev.map(t => t._id === id ? data : t)
+    )
   }
 
-  return { tareas, agregarTarea, eliminarTarea, actualizarTarea }
+  return {
+    tareas,
+    agregarTarea,
+    eliminarTarea,
+    actualizarTarea
+  }
 }
